@@ -1,0 +1,3 @@
+/target/
+/src/main/resources/static/css/app.css
+benchmark/results/data.sql

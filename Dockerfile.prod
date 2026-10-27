@@ -1,0 +1,25 @@
+# Production image: minified CSS, the Spring Boot jar built by Maven and a JRE 21 on Alpine.
+FROM python:3.12-slim AS css
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL -o /usr/local/bin/tailwindcss \
+       https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-x64 \
+    && chmod +x /usr/local/bin/tailwindcss
+WORKDIR /src
+COPY assets ./assets
+COPY src/main/resources/templates ./src/main/resources/templates
+RUN tailwindcss -i assets/app.tailwind.css -o src/main/resources/static/css/app.css --minify
+
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /src
+COPY pom.xml ./
+RUN mvn -q dependency:go-offline
+COPY src ./src
+COPY --from=css /src/src/main/resources/static/css/app.css src/main/resources/static/css/app.css
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:21-jre-alpine
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build /src/target/controlfinan.jar /app/controlfinan.jar
+USER app
+EXPOSE 8000
+ENTRYPOINT ["java", "-jar", "/app/controlfinan.jar"]

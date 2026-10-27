@@ -1,0 +1,17 @@
+<html th:replace="~{layout :: page('Recuperar senha', ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="content">
+<div class="mx-auto max-w-sm">
+  <h1 class="mb-6 text-2xl font-semibold">Esqueceu a senha?</h1>
+
+  <form class="card space-y-4" action="/passwords" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" th:value="${csrf}" autocomplete="off">
+    <div>
+      <label class="label" for="email_address">E-mail</label>
+      <input required="required" autofocus="autofocus" autocomplete="username" th:value="${emailAddress}" class="input" type="email" name="email_address" id="email_address">
+    </div>
+    <input type="submit" value="Enviar instruções" class="btn-primary w-full">
+  </form>
+
+  <p class="mt-4 text-sm"><a class="link" href="/session/new">Voltar para o login</a></p>
+</div>
+</th:block>
+</html>

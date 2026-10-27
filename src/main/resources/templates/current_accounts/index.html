@@ -1,0 +1,70 @@
+<html th:replace="~{layout :: page('Conta Corrente', ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="content">
+<div class="mb-4 flex items-end justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-semibold">Conta Corrente</h1>
+    <p class="mt-1 text-sm text-slate-600" th:text="${dateLabel.isEmpty()} ? 'Saldo total' : 'Saldo do dia ' + ${dateLabel}"></p>
+    <p th:class="'text-2xl font-bold ' + ${F.amountClass(balance)}" th:text="${F.currency(balance)}"></p>
+  </div>
+
+  <a class="btn-primary hidden sm:inline-flex" href="/current_accounts/new">Novo lançamento</a>
+</div>
+
+<form class="mb-4 flex items-end gap-2" action="/current_accounts" accept-charset="UTF-8" method="get">
+  <div class="min-w-0 flex-1 sm:flex-none">
+    <label class="label" for="date">Consultar saldo do dia</label>
+    <input class="input" type="date" th:value="${dateValue}" name="date" id="date">
+  </div>
+  <input type="submit" value="Consultar" class="btn-secondary">
+  <a th:unless="${dateLabel.isEmpty()}" class="btn-secondary" href="/current_accounts">Limpar</a>
+</form>
+
+<p th:if="${entries.isEmpty()}" class="card text-center text-sm text-slate-500">Nenhum lançamento encontrado.</p>
+<th:block th:unless="${entries.isEmpty()}">
+  <ul class="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm sm:hidden">
+    <li th:each="e : ${entries}">
+      <a class="flex items-center justify-between gap-3 px-4 py-3 active:bg-slate-50" th:href="@{/current_accounts/{id}(id=${e.id})}">
+        <div class="min-w-0">
+          <p class="truncate font-medium" th:text="${e.nameCost()}"></p>
+          <p class="truncate text-xs text-slate-500" th:text="${F.dayMonth(e.dateOcurrence)} + ' · ' + ${e.nameAccount()} + (${e.historic} ? ' · ' + ${e.historic} : '')"></p>
+        </div>
+        <span th:class="${e.credit} ? 'shrink-0 font-semibold text-emerald-700' : 'shrink-0 font-semibold text-red-700'" th:text="${F.currency(e.signedPrice())}"></span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm sm:block">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+        <tr>
+          <th class="px-4 py-3">Data</th>
+          <th class="px-4 py-3">Conta</th>
+          <th class="px-4 py-3">Categoria</th>
+          <th class="px-4 py-3">Histórico</th>
+          <th class="px-4 py-3 text-right">Valor</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr th:each="e : ${entries}" th:id="'current_account_' + ${e.id}" class="hover:bg-slate-50">
+          <td class="whitespace-nowrap px-4 py-3" th:text="${F.brDate(e.dateOcurrence)}"></td>
+          <td class="px-4 py-3" th:text="${e.nameAccount()}"></td>
+          <td class="px-4 py-3" th:text="${e.nameCost()}"></td>
+          <td class="px-4 py-3 text-slate-600" th:text="${e.historic}"></td>
+          <td th:class="${e.credit} ? 'whitespace-nowrap px-4 py-3 text-right font-medium text-emerald-700' : 'whitespace-nowrap px-4 py-3 text-right font-medium text-red-700'" th:text="${F.currency(e.signedPrice())}"></td>
+          <td class="whitespace-nowrap px-4 py-3 text-right">
+            <a class="link" th:href="@{/current_accounts/{id}(id=${e.id})}">Ver</a>
+            <a class="link ml-2" th:href="@{/current_accounts/{id}/edit(id=${e.id})}">Editar</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</th:block>
+
+<nav class="mt-4 flex justify-between gap-3">
+  <a th:if="${page > 1}" class="btn-secondary" th:href="${previousUrl}">← Mais recentes</a>
+  <a th:if="${nextPage}" class="btn-secondary ml-auto" th:href="${nextUrl}">Mais antigos →</a>
+</nav>
+</th:block>
+</html>

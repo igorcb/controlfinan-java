@@ -1,0 +1,40 @@
+<html th:replace="~{layout :: page('Lançamento', ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="content">
+<h1 class="mb-6 text-2xl font-semibold">Lançamento</h1>
+
+<div class="card">
+  <dl class="grid gap-4 text-sm sm:grid-cols-2">
+    <div>
+      <dt class="text-slate-500">Data</dt>
+      <dd class="font-medium" th:text="${F.brDate(entry.dateOcurrence)}"></dd>
+    </div>
+    <div>
+      <dt class="text-slate-500">Tipo</dt>
+      <dd class="font-medium" th:text="${entry.typeName()}"></dd>
+    </div>
+    <div>
+      <dt class="text-slate-500">Conta</dt>
+      <dd class="font-medium" th:text="${entry.nameAccount()}"></dd>
+    </div>
+    <div>
+      <dt class="text-slate-500">Categoria</dt>
+      <dd class="font-medium" th:text="${entry.nameCost()}"></dd>
+    </div>
+    <div>
+      <dt class="text-slate-500">Valor</dt>
+      <dd th:class="${entry.credit} ? 'font-medium text-emerald-700' : 'font-medium text-red-700'" th:text="${F.currency(entry.signedPrice())}"></dd>
+    </div>
+    <div>
+      <dt class="text-slate-500">Histórico</dt>
+      <dd class="font-medium" th:text="${entry.historic} ?: '—'"></dd>
+    </div>
+  </dl>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <a class="btn-primary" th:href="@{/current_accounts/{id}/edit(id=${entry.id})}">Editar</a>
+    <a class="btn-secondary" href="/current_accounts">Voltar</a>
+    <form class="button_to" method="post" th:action="@{/current_accounts/{id}(id=${entry.id})}" data-confirm="Excluir este lançamento?"><input type="hidden" name="_method" value="delete" autocomplete="off"><button class="btn-danger" type="submit">Excluir</button><input type="hidden" name="authenticity_token" th:value="${csrf}" autocomplete="off"></form>
+  </div>
+</div>
+</th:block>
+</html>

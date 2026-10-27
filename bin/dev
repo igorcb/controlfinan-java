@@ -1,0 +1,5 @@
+#!/bin/sh
+# Development: build the CSS, then compile and run the app (restart the container after Java changes).
+set -e
+tailwindcss -i assets/app.tailwind.css -o src/main/resources/static/css/app.css
+exec mvn -q -Dmaven.repo.local=/home/app/.m2/repository spring-boot:run
