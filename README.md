@@ -92,7 +92,7 @@ assets/        fonte do Tailwind
 
 ## Benchmark
 
-O benchmark com Rails, Django, Laravel, Go e Java fica no repositório [controlfinan-go](https://github.com/igorcb/controlfinan-go#benchmark-rails-x-django-x-laravel-x-go).
+O benchmark que compara as seis versões do ControlFinan (Rails, Django, Laravel, Go, Java e Rust), com os mesmos dados e os mesmos limites de CPU e memória, fica no repositório do app de referência: [controlfinan-rails8-hotwire/benchmark](https://github.com/igorcb/controlfinan-rails8-hotwire/tree/main/benchmark).
 
 ## Licença
 
