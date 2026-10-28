@@ -242,6 +242,46 @@ class RequestsTest extends AppTest {
     }
 
     @Test
+    void updateEntryKeepsFieldsAbsentFromTheForm() {
+        User user = signIn();
+        Entry entry = createEntry(user, "2026-10-27", Entry.DEBIT, 8, "150.00", "Fuel");
+        Map<String, String> form = validForm();
+        form.remove("current_account[historic]");
+        form.remove("current_account[cost_id]");
+        form.put("_method", "patch");
+        Response response = post("/current_accounts/" + entry.getId(), form);
+        assertEquals("/current_accounts/" + entry.getId(), response.location());
+        Entry saved = repository.findEntry(user.getId(), entry.getId());
+        assertEquals("Fuel", saved.getHistoric());
+        assertEquals(8, saved.getCostId());
+    }
+
+    @Test
+    void updateEntryWithOnlyThePriceKeepsTheOtherFields() {
+        User user = signIn();
+        Entry entry = createEntry(user, "2026-10-27", Entry.DEBIT, 8, "150.00", "Fuel");
+        Response response = post("/current_accounts/" + entry.getId(), Map.of("_method", "patch", "current_account[price]", "12.5"));
+        assertEquals("/current_accounts/" + entry.getId(), response.location());
+        Entry saved = repository.findEntry(user.getId(), entry.getId());
+        assertEquals(new java.math.BigDecimal("12.50"), saved.getPrice());
+        assertEquals("Fuel", saved.getHistoric());
+        assertEquals(8, saved.getCostId());
+        assertEquals(5, saved.getCashAccountId());
+        assertEquals(Entry.DEBIT, saved.getTypeLaunche());
+        assertEquals(LocalDate.parse("2026-10-27"), saved.getDateOcurrence());
+    }
+
+    @Test
+    void updateEntryWithAnEmptyRequiredFieldFailsValidation() {
+        User user = signIn();
+        Entry entry = createEntry(user, "2026-10-27", Entry.DEBIT, 8, "150.00", "Fuel");
+        Response response = post("/current_accounts/" + entry.getId(), Map.of("_method", "patch", "current_account[price]", ""));
+        assertEquals(422, response.status());
+        assertContains(response.body(), "Valor não pode ficar em branco");
+        assertEquals(new java.math.BigDecimal("150.00"), repository.findEntry(user.getId(), entry.getId()).getPrice());
+    }
+
+    @Test
     void deleteEntry() {
         Entry entry = createCredit(signIn(), "2026-10-27", "150.00");
         Response response = post("/current_accounts/" + entry.getId(), Map.of("_method", "delete"));
