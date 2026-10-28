@@ -62,7 +62,7 @@ Imagem de produção: `Dockerfile.prod`, com o jar do Spring Boot numa JRE 21 Al
 
 ## Testes
 
-35 testes com **JUnit 5**. O app sobe de verdade numa porta aleatória, os testes usam um cliente HTTP com cookies e um Postgres de verdade. Eles cobrem:
+38 testes com **JUnit 5**. O app sobe de verdade numa porta aleatória, os testes usam um cliente HTTP com cookies e um Postgres de verdade. Eles cobrem:
 
 - Formatação de moeda e decimais.
 - Senha no formato do Rails, incluindo um hash gravado pelo próprio Rails.

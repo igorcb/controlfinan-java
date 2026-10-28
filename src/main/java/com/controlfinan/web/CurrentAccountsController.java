@@ -162,19 +162,36 @@ public class CurrentAccountsController {
         return entry;
     }
 
-    /** Copies the form fields into the entry and returns the validation messages. */
+    /**
+     * Copies the form fields present in the request into the entry and returns the validation messages.
+     * Like Rails' update, keys absent from the request keep the entry's current value; a present
+     * key (even empty) is assigned. On create the entry is new, so absent keys stay blank.
+     */
     private static List<String> assign(Entry entry, HttpServletRequest request) {
-        entry.setCashAccountId(integer(request.getParameter("current_account[cash_account_id]")));
-        entry.setCostId(integer(request.getParameter("current_account[cost_id]")));
-        String type = request.getParameter("current_account[type_launche]");
-        entry.setTypeLaunche("debito".equals(type) ? Integer.valueOf(Entry.DEBIT) : "credito".equals(type) ? Integer.valueOf(Entry.CREDIT) : null);
-        entry.setDateOcurrence(parseDate(request.getParameter("current_account[date_ocurrence]")));
-        String price = request.getParameter("current_account[price]");
-        entry.setPriceText(price == null ? "" : price.strip());
-        entry.setPrice(NUMBER.matcher(entry.getPriceText()).matches()
-            ? new BigDecimal(entry.getPriceText()).setScale(2, RoundingMode.HALF_UP) : null);
-        String historic = request.getParameter("current_account[historic]");
-        entry.setHistoric(historic == null || historic.isEmpty() ? null : historic);
+        Map<String, String[]> params = request.getParameterMap();
+        if (params.containsKey("current_account[cash_account_id]")) {
+            entry.setCashAccountId(integer(request.getParameter("current_account[cash_account_id]")));
+        }
+        if (params.containsKey("current_account[cost_id]")) {
+            entry.setCostId(integer(request.getParameter("current_account[cost_id]")));
+        }
+        if (params.containsKey("current_account[type_launche]")) {
+            String type = request.getParameter("current_account[type_launche]");
+            entry.setTypeLaunche("debito".equals(type) ? Integer.valueOf(Entry.DEBIT) : "credito".equals(type) ? Integer.valueOf(Entry.CREDIT) : null);
+        }
+        if (params.containsKey("current_account[date_ocurrence]")) {
+            entry.setDateOcurrence(parseDate(request.getParameter("current_account[date_ocurrence]")));
+        }
+        if (params.containsKey("current_account[price]")) {
+            String price = request.getParameter("current_account[price]");
+            entry.setPriceText(price == null ? "" : price.strip());
+            entry.setPrice(NUMBER.matcher(entry.getPriceText()).matches()
+                ? new BigDecimal(entry.getPriceText()).setScale(2, RoundingMode.HALF_UP) : null);
+        }
+        if (params.containsKey("current_account[historic]")) {
+            String historic = request.getParameter("current_account[historic]");
+            entry.setHistoric(historic == null || historic.isEmpty() ? null : historic);
+        }
         return entry.validate();
     }
 
